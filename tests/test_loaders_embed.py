@@ -50,5 +50,5 @@ def test_hash_embedder_shape_and_similarity():
     v1, v2, v3 = e.embed_documents(["refund policy for returns", "return and refund policy", "freezer temperature"])
     assert len(v1) == 384
     assert math.isclose(sum(x * x for x in v1), 1.0, rel_tol=1e-6)   # normalised
-    cos = lambda a, b: sum(x * y for x, y in zip(a, b))                 # noqa: E731
+    cos = lambda a, b: sum(x * y for x, y in zip(a, b, strict=True))
     assert cos(v1, v2) > cos(v1, v3)  # related texts are closer than unrelated ones
