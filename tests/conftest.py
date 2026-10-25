@@ -31,3 +31,25 @@ def store():
     invalidate_bm25()
     ingest_path(ROOT / "data" / "sample_docs", store=s)
     return s
+
+
+
+
+from app.llm.providers import LLMProvider, LLMResponse  # noqa: E402
+
+
+class FakeProvider(LLMProvider):
+    """Offline stand-in for a real LLM: records calls, can be told to fail."""
+
+    name = "fake"
+
+    def __init__(self, reply: str = "fake answer [1]", fail: bool = False) -> None:
+        super().__init__("fake-1")
+        self.reply, self.fail = reply, fail
+        self.calls: list[str] = []
+
+    async def complete(self, messages, temperature=0.1, max_tokens=1024):
+        if self.fail:
+            raise RuntimeError("provider down")
+        self.calls.append("\n".join(m.content for m in messages))
+        return LLMResponse(self.reply, self.name, self.model, 10, 5)
